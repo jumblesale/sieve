@@ -2,8 +2,13 @@
 
 import Test.QuickCheck
 
-allEvens :: [Int]
-allEvens = [2, 4..]
+allOdds :: [Int]
+allOdds = [3,5..]
+
+squareGELimit :: Int -> Int -> Bool
+squareGELimit x y = x*x >= y
+prop_squareGELimitTrueApp  = True == squareGELimit 7 30
+prop_squareGELimitFalseApp = False == squareGELimit 7 50
 
 dropEveryNth :: Int -> [Int] -> [Int]
 dropEveryNth n xs = case drop (n - 1) xs of
@@ -15,4 +20,10 @@ prop_dropNthApp :: Bool
 prop_dropNthApp = [5,10,15,20,25] == dropEveryNth 5 (take 29 ([1..]))
 
 tests :: [(String, Bool)]
-tests = [("it takes every nth element from a list", prop_dropNthApp)]
+tests = 
+    [("it takes every nth element from a list", prop_dropNthApp),
+     ("it is true for the square of seven greater than / equals 30", prop_squareGELimitTrueApp),
+     ("it is false for the square of seven greater than / equals 30", prop_squareGELimitFalseApp)]
+
+testResult :: Bool
+testResult = all (\x -> snd x == True) tests
