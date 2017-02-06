@@ -2,37 +2,41 @@
 
 import Test.QuickCheck
 import Data.List as List
-import Data.Set as Set
+import Data.Map.Strict as Map hiding (map)
+import Data.Set as Set hiding (map)
 
 sieve :: Int -> [Int]
 sieve = undefined
 
-getFirstUniqueElementInList :: (Eq a) => [a] -> [a] -> a
--- \\ is the list difference operator apparently
-getFirstUniqueElementInList x y = head $ x List.\\ y
-prop_getFirstUniqueElementInList
-    = getFirstUniqueElementInList [2,7,11,23] [2,7,23] == 11
+-- generate multiples of a number starting at the number's square
+generateMultiples :: Int -> Int -> [Int]
+generateMultiples limit n = takeWhile (<= limit) $ map (*n) [n..]
+prop_generateMultiplesOf2 = [4,6,8,10,12] == generateMultiples 12 2
+prop_generateMultiplesOf5 = [25,30,35,40] == generateMultiples 40 5
 
-squareGELimit :: Int -> Int -> Bool
-squareGELimit x y = x*x >= y
-prop_squareGELimitTrueApp  = True == squareGELimit 7 30
-prop_squareGELimitFalseApp = False == squareGELimit 7 50
+nonPrimesFromMap :: Map Int Bool -> [Int]
+nonPrimesFromMap = Map.keys . Map.filter(== False)
 
-dropEveryNth :: Int -> [a] -> [a]
-dropEveryNth n xs = case drop (n - 1) xs of
-    []     -> []
-    (y:ys) -> y : dropEveryNth n ys
--- in the first 29 natural numbers, the expected output would be
--- [5,10,15,20,25]
-prop_dropNthApp :: Bool
-prop_dropNthApp = [5,10,15,20,25] == dropEveryNth 5 (take 29 ([1..]))
+nextCandidate :: Set Int -> Map Int Bool -> Int
+nextCandidate visited candidates = head $ nonPrimesFromMap candidates List.\\ Set.toList visited
+prop_nextCandidateFirstVisitedGives2 = 2 == nextCandidate Set.empty (Map.fromList [(2,False)])
+prop_nextCandidateAfter2And3Gives4   =
+    4 == nextCandidate (Set.fromList [2,3]) (Map.fromList [(2,True),(3,True),(4,False)])
 
 tests :: [(String, Bool)]
 tests = 
-    [("it takes every nth element from a list", prop_dropNthApp),
-     ("it is true for the square of seven greater than / equals 30", prop_squareGELimitTrueApp),
-     ("it is false for the square of seven greater than / equals 50", prop_squareGELimitFalseApp),
-     ("it gets the first unique element from two lists", prop_getFirstUniqueElementInList)]
+    [("it gets the first candidate as 2", prop_nextCandidateFirstVisitedGives2),
+     ("it gets the next candidate after 2 and 3 as 4", prop_nextCandidateAfter2And3Gives4),
+     ("it generates mutliples of 2", prop_generateMultiplesOf2),
+     ("it generates multiples of 5", prop_generateMultiplesOf5)
+    ]
 
 testResult :: Bool
 testResult = all (\x -> snd x == True) tests
+
+testCandidates :: Map Int Bool
+testCandidates = Map.fromList $ zip ([2,3..30]) (repeat False)
+
+-- the first 30 primes
+testExpectedResult :: [Int]
+testExpectedResult = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
