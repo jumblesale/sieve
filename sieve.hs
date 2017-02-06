@@ -8,6 +8,18 @@ import Data.Set as Set hiding (map)
 sieve :: Int -> [Int]
 sieve = undefined
 
+-- this should be a fold?
+markIndexesAsNonPrime :: Map Int Bool -> [Int] -> Map Int Bool
+markIndexesAsNonPrime m [] = m
+markIndexesAsNonPrime m (x:xs) = markIndexesAsNonPrime (markIndexAsNonPrime x m) xs
+prop_markIndexesAsNonPrimeMarksIndexesAsNonPrime =
+    Map.fromList [(2, False), (3, True), (4, False)] ==
+    markIndexesAsNonPrime (Map.fromList [(2, True), (3, True), (4, True)]) [2, 4]
+
+--prop_markMultiplesAsNonPrimeMarksMultiplesOf2AsNonPrime =
+--    [(2, True), (3, True), (4, False), (5, True), (6, False)] ==
+--    markMultiplesAsNonPrime 6 2 (Map.fromList $ zip ([2,3..6]) (repeat True))
+
 markIndexAsNonPrime :: Int -> Map Int Bool -> Map Int Bool
 markIndexAsNonPrime index m = Map.insert index False m
 prop_markIndexAsNonPrimeSetsIndexToFalse =
@@ -38,7 +50,8 @@ tests =
      ("it gets the next candidate after 2 and 3 as 4", prop_nextCandidateAfter2And3Gives4),
      ("it generates mutliples of 2", prop_generateMultiplesOf2),
      ("it generates multiples of 5", prop_generateMultiplesOf5),
-     ("it marks indexes as non-primes", prop_markIndexAsNonPrimeSetsIndexToFalse)
+     ("it marks a single index as non-prime", prop_markIndexAsNonPrimeSetsIndexToFalse)
+     ("it marks indexes as non-prime", prop_markIndexesAsNonPrimeMarksIndexesAsNonPrime)
     ]
 
 testResult :: Bool
