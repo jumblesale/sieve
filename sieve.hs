@@ -4,10 +4,19 @@ import Test.QuickCheck
 import Data.List as List
 import Data.Map.Strict as Map hiding (map)
 import Data.Set as Set hiding (map)
+import Debug.Trace
 
 sieve :: Int -> [Int]
-sieve = undefined
+sieve limit = candidatesFromMap $
+    sieveIteration limit 2 [] (Map.fromList $ zip ([2,3..limit]) (repeat True))
+prop_sieveProducesFirst30Primes = testExpectedResult == sieve 30
 
+sieveIteration :: Int -> Int -> [Int] -> Map Int Bool -> Map Int Bool
+sieveIteration limit n visited m
+    | n*n > limit =  m
+    | otherwise = sieveIteration limit (nextCandidate visited' m') visited' m'
+    where visited' = visited ++ [n]
+          m' = markMultiplesAsNonPrime limit n m
 
 markMultiplesAsNonPrime :: Int -> Int -> Map Int Bool -> Map Int Bool
 markMultiplesAsNonPrime limit n m = markIndexesAsNonPrime m (generateMultiples limit n)
@@ -15,7 +24,7 @@ prop_markMultiplesAsNonPrimeMarksMultiplesOf2AsNonPrime =
     Map.fromList [(2, True), (3, True), (4, False), (5, True), (6, False)] ==
     markMultiplesAsNonPrime 6 2 (Map.fromList $ zip ([2,3..6]) (repeat True))
 
--- this should be a fold?
+-- this should be a foldl?
 markIndexesAsNonPrime :: Map Int Bool -> [Int] -> Map Int Bool
 markIndexesAsNonPrime m [] = m
 markIndexesAsNonPrime m (x:xs) = markIndexesAsNonPrime (markIndexAsNonPrime x m) xs
@@ -41,11 +50,11 @@ nonPrimesFromMap = Map.keys . Map.filter(== False)
 candidatesFromMap :: Map Int Bool -> [Int]
 candidatesFromMap = Map.keys . Map.filter(== True)
 
-nextCandidate :: Set Int -> Map Int Bool -> Int
-nextCandidate visited candidates = head $ candidatesFromMap candidates List.\\ Set.toList visited
-prop_nextCandidateFirstVisitedGives2 = 2 == nextCandidate Set.empty (Map.fromList [(2,True)])
+nextCandidate :: [Int] -> Map Int Bool -> Int
+nextCandidate visited candidates = head $ candidatesFromMap candidates List.\\ visited
+prop_nextCandidateFirstVisitedGives2 = 2 == nextCandidate [] (Map.fromList [(2,True)])
 prop_nextCandidateAfter2And3Gives4   =
-    4 == nextCandidate (Set.fromList [2,3]) (Map.fromList [(2,False),(3,False),(4,True)])
+    4 == nextCandidate [2,3] (Map.fromList [(2,False),(3,False),(4,True)])
 
 tests :: [(String, Bool)]
 tests = 
@@ -55,14 +64,16 @@ tests =
      ("it generates multiples of 5", prop_generateMultiplesOf5),
      ("it marks a single index as non-prime", prop_markIndexAsNonPrimeSetsIndexToFalse),
      ("it marks indexes as non-prime", prop_markIndexesAsNonPrimeMarksIndexesAsNonPrime),
-     ("it marks multiples of a number as non-primes", prop_markMultiplesAsNonPrimeMarksMultiplesOf2AsNonPrime)
+     ("it marks multiples of a number as non-primes", prop_markMultiplesAsNonPrimeMarksMultiplesOf2AsNonPrime),
+     ("it produces first 30 prime numbers", prop_sieveProducesFirst30Primes)
     ]
 
 testResult :: Bool
 testResult = all (\x -> snd x == True) tests
 
-testCandidates :: Map Int Bool
-testCandidates = Map.fromList $ zip ([2,3..30]) (repeat True)
+
+testReport = mapM_ putStrLn $ map report tests
+    where report = (\x -> (if snd x == True then "✔ " else "✘ ") ++ fst x)
 
 -- the first 10 primes under 30
 testExpectedResult :: [Int]
