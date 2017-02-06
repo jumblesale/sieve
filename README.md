@@ -1,6 +1,6 @@
 # SIEVE
 
-A very verbose implementation of the sieve of Eratosthenes
+A very verbose implementation of the sieve of Eratosthenes.
 
 ## Running
 
@@ -32,18 +32,18 @@ This is a pretty standard implementation of the sieve of Eratosthenes. The `siev
 ## Tests
 
 Most methods have a `quickCheck` style test! All the `prop_*` bits under the method
- describe how it should work. You can run inspect them all with the `testReport` method
+ describe how it should work. You can inspect them all with the `testReport` method
  which gives you a nice bit of formatted output.
 
 ## Performance
 
 On my 2015 Macbook Pro this can generate ~30,000 primes instantly. I've tested up to 200,000
  which takes a few seconds. The improvements section contains details on how this could be
- improved.
+ better.
 
 ## What went well
 
-* The baked-in tests are fun and give immediate feedback on if a function is behaving as expected
+* The baked-in tests are fun and give immediate feedback on if a function is behaving as expected.
 * Generating the initial `Map` with `(Map.fromList $ zip ([2,3..limit]) (repeat True))` is a really
   nice way of expressing the list.
 * Seems to perform pretty well!
@@ -63,6 +63,9 @@ On my 2015 Macbook Pro this can generate ~30,000 primes instantly. I've tested u
 * I started off having a single list of numbers which I was dropping elements of as I discovered they
   were not primes. This solution quickly became umanageable but if you would like to see it it is in
   the git history. The choice of `Data.Map` was clearly easier to work with than just using `[Int]`s.
+* This probably looks horrible to a Haskell programmer. I'm still new to the language and it was
+  fun to have a problem to solve using it. Hoepfully some of the stuff in here is idiomatic but
+  I suspect there's a much neater way of doing, for instance, `sieveIteration :: Int -> Int -> [Int] -> Map Int Bool -> Map Int Bool` which I do not yet know about.
 
 ## Improvements
 
