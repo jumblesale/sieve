@@ -13,7 +13,7 @@ prop_sieveProducesFirst30Primes = testExpectedResult == sieve 30
 
 sieveIteration :: Int -> Int -> [Int] -> Map Int Bool -> Map Int Bool
 sieveIteration limit n visited m
-    | n*n > limit =  m
+    | n*n > limit = m
     | otherwise = sieveIteration limit (nextCandidate visited' m') visited' m'
     where visited' = visited ++ [n]
           m' = markMultiplesAsNonPrime limit n m
@@ -71,7 +71,7 @@ tests =
 testResult :: Bool
 testResult = all (\x -> snd x == True) tests
 
-
+testReport :: IO ()
 testReport = mapM_ putStrLn $ map report tests
     where report = (\x -> (if snd x == True then "✔ " else "✘ ") ++ fst x)
 
