@@ -22,8 +22,8 @@ This is a pretty standard implementation of the sieve of Eratosthenes. The `siev
  value representing if this number has been proven to be non-prime (`False` means this is not a prime).
  This is initially set to `True` for all values.
 
- Then the function produces all multiples of 2 and updates the map to set these multiples to `False`
- - we know these can't be primes. 2 is added to a second list of 'visited' numbers. Then the function
+ Then the function produces all multiples of 2 and updates the map to set these multiples to `False` -
+ we know these can't be primes. 2 is added to a second list of 'visited' numbers. Then the function
  finds the first number `> 2` which has not been disproven as a prime. This gives 3. The function
  updates the map with all multiples of 3 then takes the next non-prime, unvisited number, 5. This
  continues until it hits the terminating clause - when the next number to check has a square `>` the
